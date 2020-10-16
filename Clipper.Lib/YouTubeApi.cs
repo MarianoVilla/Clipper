@@ -19,22 +19,24 @@ namespace Clipper.Lib
 {
     public class YouTubeApi
     {
-        public async Task UploadClipAsync(string FilePath, BroadcasterInfo Info = null, string Title = null, string PrivacyStatus = "private", IEnumerable<string> Tags = null)
+        public async Task UploadClipAsync(string FilePath, BroadcasterInfo Info = null, string Title = null, string Privacy = null, IEnumerable<string> Tags = null)
         {
             try
             {
                 Title ??= Path.GetFileNameWithoutExtension(FilePath);
+                Privacy ??= PrivacyStatus.Private;
+
                 LogUtil.Log($"Uploading {FilePath}\n{Title}");
 
                 var youtubeService = BuildService(await BuildCredential());
                 var video = new Video();
                 video.Snippet = new VideoSnippet();
                 video.Snippet.Title = Title;
-                video.Snippet.Description = $"Subscribe to {Info.broadcaster_name ?? "the streamer"}! Twitch.tv/{Info.broadcaster_name}";
+                video.Snippet.Description = $"Follow {Info.broadcaster_name ?? "the streamer"}! Twitch.tv/{Info.broadcaster_name}";
                 video.Snippet.Tags = Tags?.ToArray() ?? new[]{ "clip", Info.broadcaster_name, Info.broadcaster_language, Info.game_name };
-                video.Snippet.CategoryId = "22"; // See https://developers.google.com/youtube/v3/docs/videoCategories/list
+                video.Snippet.CategoryId = "22";
                 video.Status = new VideoStatus();
-                video.Status.PrivacyStatus = PrivacyStatus; // or "private" or "public"
+                video.Status.PrivacyStatus = Privacy;
                 var filePath = FilePath;
 
                 using (var fileStream = new FileStream(filePath, FileMode.Open))

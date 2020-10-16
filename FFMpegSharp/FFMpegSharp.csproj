@@ -30,6 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Alpha.Utilidades.General.Entidades">
+      <HintPath>..\Ref\Alpha.Utilidades.General.Entidades.dll</HintPath>
+    </Reference>
+    <Reference Include="Alpha.UtilidadesMariano.GeneralLIb">
+      <HintPath>..\Ref\Alpha.UtilidadesMariano.GeneralLIb.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />

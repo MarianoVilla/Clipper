@@ -43,7 +43,7 @@ namespace FFMpegSharp
             }
             finally
             {
-                _process.WaitForExit();
+                _process.WaitForExit(120000);
                 _process.Close();
                 IsConverting = false;
             }
@@ -271,18 +271,27 @@ namespace FFMpegSharp
         /// Converts a source video to TS format.
         /// </summary>
         /// <param name="source">Source video file.</param>
-        /// <param name="output">Output video file.</param>
+        /// <param name="IntendedOutput">Output video file.</param>
         /// <returns>Success state.</returns>
-        public bool ToTS(VideoInfo source, string output)
+        public bool ToTS(VideoInfo source, string IntendedOutput, out string ActualOutput)
         {
+            int i = 0;
+            ActualOutput = IntendedOutput;
+            while (File.Exists(ActualOutput) && FFMpegHelper.IsFileLocked(ActualOutput))
+            {
+                ActualOutput = Path.Combine(Path.GetDirectoryName(IntendedOutput), Path.GetFileNameWithoutExtension(IntendedOutput) + $"({i}){Path.GetExtension(IntendedOutput)}");
+                i++;
+            }
             _probe.SetVideoInfo(ref source);
             _totalVideoTime = source.Duration;
             IsConverting = true;
+            if (File.Exists(IntendedOutput) && !FFMpegHelper.IsFileLocked(IntendedOutput))
+                return true;
 
-            FFMpegHelper.ConversionExceptionCheck(source, output);
-            FFMpegHelper.ExtensionExceptionCheck(output, ".ts");
+            FFMpegHelper.ConversionExceptionCheck(source, IntendedOutput);
+            FFMpegHelper.ExtensionExceptionCheck(IntendedOutput, ".ts");
 
-            string conversionArgs = string.Format("-i \"{0}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"{1}\"", source.Path, output);
+            string conversionArgs = string.Format("-i \"{0}\" -c copy -bsf:v h264_mp4toannexb -f mpegts \"{1}\"", source.Path, IntendedOutput);
             return _RunProcess(conversionArgs);
         }
 
@@ -292,9 +301,9 @@ namespace FFMpegSharp
         /// <param name="source">Source video file.</param>
         /// <param name="output">Output video file.</param>
         /// <returns>Success state.</returns>
-        public bool ToTS(string source, string output)
+        public bool ToTS(string source, string output, out string ActualOut)
         {
-            return ToTS(new VideoInfo(source), output);
+            return ToTS(new VideoInfo(source), output, out ActualOut);
         }
 
         /// <summary>
@@ -432,8 +441,8 @@ namespace FFMpegSharp
             string[] pathList = new string[videos.Length];
             for (int i = 0; i < pathList.Length; i++)
             {
-                pathList[i] = videos[i].Path.Replace(videos[i].Extension, ".ts");
-                ToTS(videos[i].Path, videos[i].Path.Replace("mp4", "ts"));
+                ToTS(videos[i].Path, videos[i].Path.Replace("mp4", "ts"), out string ActualPath);
+                pathList[i] = ActualPath;
             }
 
             string conversionArgs = string.Format("-i \"concat:{0}\" -c copy -bsf:a aac_adtstoasc \"{1}\"", string.Join(@"|", (object[])pathList), output);
@@ -442,22 +451,22 @@ namespace FFMpegSharp
             if(result)
                 foreach (string path in pathList)
                     if (File.Exists(path))
-                        File.Delete(path);
+                        FFMpegHelper.TryDelete(path);
 
             return result;
         }
-
         /// <summary>
         /// Joins a list of video files.
         /// </summary>
         /// <param name="output">Output video file.</param>
         /// <param name="videos">List of vides that need to be joined together.</param>
         /// <returns>Success state.</returns>
-        public bool Join(string output, params string[] videos)
+        public bool Join(string output, out VideoInfo[] infoList, params string[] videos)
         {
-            if(videos.Length > 0)
+            infoList = new VideoInfo[0];
+            if (videos.Length > 0)
             {
-                VideoInfo[] infoList = new VideoInfo[videos.Length];
+                infoList = new VideoInfo[videos.Length];
                 for (int i = 0; i < videos.Length; i++)
                 {
                     var vidInfo = new VideoInfo(videos[i]);

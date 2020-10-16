@@ -1,4 +1,5 @@
-﻿using Alpha.UtilidadesMariano.GeneralLIb.Util;
+﻿using Alpha.UtilidadesMariano.GeneralLIb.Models;
+using Alpha.UtilidadesMariano.GeneralLIb.Util;
 using Clipper.Lib.TwitchModel;
 using System;
 using System.Collections.Generic;
@@ -17,36 +18,46 @@ namespace Clipper.Lib
         private string ClientId = "7naigan80t3pco9z7rzfemx7n30r9e";
         public TwitchApi()
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             RefreshToken();
         }
         public void RefreshToken()
         {
+            LogUtil.Log("Getting Twitch token.");
             using(var Client = new WebClient())
             {
                 Auth = Client.UploadString($"https://id.twitch.tv/oauth2/token?client_id={ClientId}&client_secret=r70is99w7xa5d4m3qnvrd5eoekhk1d&grant_type=client_credentials", "").FromJson<OauthResponse>();
+                LogUtil.Log($"Refreshed token: {Auth.access_token}");
             }
         }
         public TopGamesResponse GetTopGames()
         {
             using (var Client = CreateAuthenticatedClient())
             {
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                 return Client.DownloadString(new Uri("https://api.twitch.tv/helix/games/top"))?.FromJson<TopGamesResponse>();
             }
         }
         //ToDo: filter by language and date.
-        public ClipsResponse GetTopClips(int GameId, int First = 5)
+        public ClipsResponse GetTopClips(int GameId, int First = 5, DateRange Range = null)
         {
+            string BeforeAfter = BuildRange(Range);
             using (var Client = CreateAuthenticatedClient())
             {
-                return Client.DownloadString($"https://api.twitch.tv/helix/clips?game_id={GameId}&first={First}")?.FromJson<ClipsResponse>();
+                return Client.DownloadString($"https://api.twitch.tv/helix/clips?game_id={GameId}&first={First}{BeforeAfter}")?.FromJson<ClipsResponse>();
             }
         }
+        string BuildRange(DateRange Range)
+        {
+            if (Range is null)
+                return string.Empty;
+            return $"&started_at={Range.StartDate.ToRfc3339String()}&ended_at={Range.EndDate.ToRfc3339String()}";
+        }
+
         public async Task<string> DownloadClipAsync(ClipInfo Clip, string OutputFolder = null)
         {
             string ClipDirect = Clip.thumbnail_url.Replace("-preview-480x272.jpg", ".mp4");
             OutputFolder ??= Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string OutputPath = Path.Combine(OutputFolder, $"{Clip.broadcaster_name}_{Clip.title}.mp4");
+            string OutputPath = Path.Combine(OutputFolder, $"{Clip.broadcaster_name} {Clip.title}.mp4".RemoveInvalidChars());
             using (var Client = new WebClient())
             {
                 var Data = await Client.DownloadDataTaskAsync(ClipDirect);
@@ -54,6 +65,7 @@ namespace Clipper.Lib
             }
             return OutputPath;
         }
+
         public BroadcasterInfo GetBroadcasterInfo(string BroadcasterId)
         {
             try
@@ -75,6 +87,7 @@ namespace Clipper.Lib
             Client.Headers.Add("Authorization", $"Bearer {Auth.access_token}");
             Client.Headers.Add("Client-ID", ClientId);
             Client.Headers.Add("Accept", "*/*");
+            Client.Encoding = Encoding.UTF8;
             return Client;
         }
     }

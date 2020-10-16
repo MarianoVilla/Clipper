@@ -10,7 +10,12 @@ namespace Clipper.Lib
 {
     public class FFMpegLib
     {
-        public static string Merge(string MergedName, params string[] Paths)
+        public class MergeResult
+        {
+            public string MergedPath { get; set; }
+            public VideoInfo[] VideosInfo { get; set; }
+        }
+        public static MergeResult Merge(string OutPath, params string[] Paths)
         {
             string ffmpegRoot = ConfigurationManager.AppSettings["ffmpegRoot"];
             //ToDo: add intro/outro.
@@ -18,8 +23,8 @@ namespace Clipper.Lib
             string Outro = ConfigurationManager.AppSettings["OutroClip"];
             FFMpeg encoder = new FFMpeg(ffmpegRoot);
 
-            encoder.Join(MergedName, Paths);
-            return null;
+            encoder.Join(OutPath, out VideoInfo[] Info, Paths);
+            return new MergeResult() { MergedPath = OutPath, VideosInfo = Info };
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FFMpegSharp.Enums;
+﻿using Alpha.UtilidadesMariano.GeneralLIb.Util;
+using FFMpegSharp.Enums;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -26,12 +27,40 @@ namespace FFMpegSharp.Helpers
         public static void ConversionExceptionCheck(VideoInfo originalVideo, string convertedPath)
         {
             if (File.Exists(convertedPath))
-                throw new Exception(string.Format("The output file: {1} already exists!", convertedPath));
+            {
+                TryDelete(convertedPath);
+                //throw new Exception(string.Format("The output file: {1} already exists!", convertedPath));
+            }
 
             if (!File.Exists(originalVideo.Path))
                 throw new Exception(string.Format("Input {0} does not exist!", originalVideo.Path));
         }
-
+        public static void TryDelete(string FilePath)
+        {
+            try
+            {
+                File.Delete(FilePath);
+            }
+            catch (Exception ex)
+            {
+                LogUtil.Log(ex);
+            }
+        }
+        public static bool IsFileLocked(string FilePath)
+        {
+            try
+            {
+                using (FileStream stream = new FileInfo(FilePath).Open(FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
+            }
+            catch (IOException ex)
+            {
+                return true;
+            }
+            return false;
+        }
         public static void InputFilesExistExceptionCheck(params string[] paths)
         {
             foreach(string path in paths)
