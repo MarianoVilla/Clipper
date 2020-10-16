@@ -32,8 +32,31 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Alpha.Utilidades.General">
+      <HintPath>..\Ref\Alpha.Utilidades.General.dll</HintPath>
+    </Reference>
+    <Reference Include="Alpha.Utilidades.General.Entidades, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Ref\Alpha.Utilidades.General.Entidades.dll</HintPath>
+    </Reference>
+    <Reference Include="Alpha.UtilidadesMariano.GeneralLIb">
+      <HintPath>..\Ref\Alpha.UtilidadesMariano.GeneralLIb.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetZip">
+      <HintPath>..\Ref\DotNetZip.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\Ref\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -47,6 +70,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="client_secrets.json" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Clipper.Lib\Clipper.Lib.csproj">
+      <Project>{995D4F6A-AEC5-4C4E-BE21-44F3BF821882}</Project>
+      <Name>Clipper.Lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FFMpegSharp\FFMpegSharp.csproj">
+      <Project>{5CEC6504-BD25-45D0-830C-A2162F4AAD12}</Project>
+      <Name>FFMpegSharp</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
