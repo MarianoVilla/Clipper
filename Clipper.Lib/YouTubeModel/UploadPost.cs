@@ -8,7 +8,7 @@ namespace Clipper.Lib.YouTubeModel
 {
     public class UploadPost
     {
-        public Snippet snippet { get; set; }
+        public VideoSnippet snippet { get; set; }
         public Status status { get; set; }
     }
     public class Snippet
