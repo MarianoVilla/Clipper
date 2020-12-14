@@ -20,7 +20,7 @@ namespace Clipper.Lib
 {
     public class YouTubeApi
     {
-        static string GetClippedApiKey = "AIzaSyA6gHsZog1to5TqAPm7ID87MRKjBhayhNM";
+        static string GetClippedApiKey = AppSettings.Instance["YouTubeApiKey"];
         static string YouTubeApiUrl = @"https://www.googleapis.com/youtube/v3";
         public List<Video> Responses { get; } = new List<Video>();
 

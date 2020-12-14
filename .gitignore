@@ -48,3 +48,4 @@ obj/
 Debug/
 Release/
 /Clipper.ConsoleApp/client_secrets.json
+/Clipper.ConsoleApp/App.config
