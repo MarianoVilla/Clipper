@@ -104,7 +104,7 @@ namespace Clipper.ConsoleApp
                         return;
                     }
                     LogUtil.Log($"Found {LatestIds.Length} IDs to comment on.");
-                    LatestIds.ToList().ForEach(async x => await YouTube.CommentOnVideo(x, "Like, subscribe and drink water!"));
+                    LatestIds.ToList().ForEach(x => YouTube.CommentOnVideo(x, "Like, subscribe and drink water!"));
                 }
             }
             catch (Exception ex)
